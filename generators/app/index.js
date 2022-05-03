@@ -14,6 +14,11 @@ const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
 
+const { buildERC20, printContract } = require("core-cairo");
+
+// Import { buildERC20, ERC20Options } from 'core-cairo';
+// import { printContract } from 'core-cairo';
+
 module.exports = class extends Generator {
   async initializing() {
     await this._greetings();
@@ -23,7 +28,7 @@ module.exports = class extends Generator {
   }
 
   // Prompt user for configuration choices
-  prompting() {
+  async prompting() {
     const autoInstallPrompt = {
       type: "confirm",
       name: "wantInstall",
@@ -61,6 +66,42 @@ module.exports = class extends Generator {
         message: "Do you want to add an ERC20 token contract?",
         store: true,
       },
+    ];
+
+    let props = await this.prompt(prompts);
+
+    const erc20prompts = [
+      {
+        type: "confirm",
+        name: "erc20mintable",
+        message: "Mintable?",
+        default: false,
+      },
+      {
+        type: "confirm",
+        name: "erc20burnable",
+        message: "Burnable?",
+        default: false,
+      },
+      {
+        type: "confirm",
+        name: "erc20pausable",
+        message: "Pausable?",
+        default: false,
+      },
+      {
+        type: "confirm",
+        name: "erc20upgradeable",
+        message: "Upgradeable?",
+        default: false,
+      },
+    ];
+
+    if (props.wantERC20) {
+      props = { ...props, ...(await this.prompt(erc20prompts)) };
+    }
+
+    const remainingPrompts = [
       {
         type: "confirm",
         name: "wantERC721",
@@ -68,14 +109,13 @@ module.exports = class extends Generator {
         store: true,
       },
     ];
-
     if (includeAutoInstallPrompt) {
-      prompts.push(autoInstallPrompt);
+      remainingPrompts.push(autoInstallPrompt);
     }
 
-    return this.prompt(prompts).then((props) => {
-      this.props = props;
-    });
+    props = { ...props, ...(await this.prompt(remainingPrompts)) };
+
+    this.props = props;
   }
 
   // Write the generated files
@@ -155,11 +195,25 @@ module.exports = class extends Generator {
   }
 
   _copyERC20() {
-    this.fs.copyTpl(
-      this.templatePath("contracts/ERC20.cairo"),
+    const c = buildERC20({
+      name: "MyToken",
+      symbol: "MTK",
+      mintable: this.props.erc20mintable,
+      burnable: this.props.erc20burnable,
+      pausable: this.props.erc20pausable,
+      upgradeable: this.props.erc20upgradeable,
+    });
+    const contractString = printContract(c);
+    this.fs.write(
       this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
-      this.props
+      contractString
     );
+
+    // This.fs.copyTpl(
+    //   this.templatePath("contracts/ERC20.cairo"),
+    //   this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
+    //   this.props
+    // );
   }
 
   _copyERC721() {

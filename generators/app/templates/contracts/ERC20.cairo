@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT
+# SPDX-License-Identifier: MIT1
 # <%= projectName %> smart contracts written in Cairo v0.0.1 (<%= projectName %>/ERC20.cairo)
 
 %lang starknet
