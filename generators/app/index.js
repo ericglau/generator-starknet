@@ -70,35 +70,70 @@ module.exports = class extends Generator {
 
     let props = await this.prompt(prompts);
 
-    const erc20prompts = [
-      {
-        type: "confirm",
-        name: "erc20mintable",
-        message: "Mintable?",
-        default: false,
-      },
-      {
-        type: "confirm",
-        name: "erc20burnable",
-        message: "Burnable?",
-        default: false,
-      },
-      {
-        type: "confirm",
-        name: "erc20pausable",
-        message: "Pausable?",
-        default: false,
-      },
-      {
-        type: "confirm",
-        name: "erc20upgradeable",
-        message: "Upgradeable?",
-        default: false,
-      },
-    ];
-
     if (props.wantERC20) {
-      props = { ...props, ...(await this.prompt(erc20prompts)) };
+      props = {
+        ...props,
+        ...(await this.prompt({
+          type: "confirm",
+          name: "useWizardERC20",
+          message: "Use OpenZeppelin Contracts Wizard to build ERC20?",
+          default: true,
+        })),
+      };
+
+      if (props.useWizardERC20) {
+        const erc20prompts = [
+          {
+            type: "input",
+            name: "erc20symbol",
+            message: "Name",
+            default: "MyToken",
+          },
+          {
+            type: "input",
+            name: "erc20name",
+            message: "Symbol",
+            default: "MTK",
+          },
+          {
+            type: "input",
+            name: "erc20decimals",
+            message: "Decimals",
+            default: "18",
+          },
+          {
+            type: "input",
+            name: "erc20premint",
+            message: "Premint",
+            default: "0",
+          },
+          {
+            type: "confirm",
+            name: "erc20mintable",
+            message: "Mintable?",
+            default: false,
+          },
+          {
+            type: "confirm",
+            name: "erc20burnable",
+            message: "Burnable?",
+            default: false,
+          },
+          {
+            type: "confirm",
+            name: "erc20pausable",
+            message: "Pausable?",
+            default: false,
+          },
+          {
+            type: "confirm",
+            name: "erc20upgradeable",
+            message: "Upgradeable?",
+            default: false,
+          },
+        ];
+        props = { ...props, ...(await this.prompt(erc20prompts)) };
+      }
     }
 
     const remainingPrompts = [
@@ -196,8 +231,10 @@ module.exports = class extends Generator {
 
   _copyERC20() {
     const c = buildERC20({
-      name: "MyToken",
-      symbol: "MTK",
+      name: this.props.erc20name,
+      symbol: this.props.erc20name,
+      decimals: this.props.erc20decimals,
+      premint: this.props.erc20premint,
       mintable: this.props.erc20mintable,
       burnable: this.props.erc20burnable,
       pausable: this.props.erc20pausable,
