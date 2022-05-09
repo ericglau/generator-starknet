@@ -14,7 +14,7 @@ const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
 
-const { buildERC20, printContract } = require("core-cairo");
+const { printERC20 } = require("core-cairo");
 
 // Import { buildERC20, ERC20Options } from 'core-cairo';
 // import { printContract } from 'core-cairo';
@@ -131,6 +131,12 @@ module.exports = class extends Generator {
             message: "Upgradeable?",
             default: false,
           },
+          {
+            type: "input",
+            name: "erc20license",
+            message: "License",
+            default: "MIT",
+          },
         ];
         props = { ...props, ...(await this.prompt(erc20prompts)) };
       }
@@ -230,7 +236,7 @@ module.exports = class extends Generator {
   }
 
   _copyERC20() {
-    const c = buildERC20({
+    const erc20 = printERC20({
       name: this.props.erc20name,
       symbol: this.props.erc20name,
       decimals: this.props.erc20decimals,
@@ -239,11 +245,11 @@ module.exports = class extends Generator {
       burnable: this.props.erc20burnable,
       pausable: this.props.erc20pausable,
       upgradeable: this.props.erc20upgradeable,
+      license: this.props.erc20license,
     });
-    const contractString = printContract(c);
     this.fs.write(
       this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
-      contractString
+      erc20
     );
 
     // This.fs.copyTpl(
