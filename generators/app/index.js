@@ -14,7 +14,7 @@ const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
 
-const { printERC20 } = require("core-cairo");
+const { printERC20, erc20defaults } = require("core-cairo");
 
 // Import { buildERC20, ERC20Options } from 'core-cairo';
 // import { printContract } from 'core-cairo';
@@ -82,60 +82,61 @@ module.exports = class extends Generator {
       };
 
       if (props.useWizardERC20) {
+        const defaults = erc20defaults;
         const erc20prompts = [
           {
             type: "input",
-            name: "erc20symbol",
+            name: "erc20name",
             message: "Name",
-            default: "MyToken",
+            default: defaults.name,
           },
           {
             type: "input",
-            name: "erc20name",
+            name: "erc20symbol",
             message: "Symbol",
-            default: "MTK",
+            default: defaults.symbol,
           },
           {
             type: "input",
             name: "erc20decimals",
             message: "Decimals",
-            default: "18",
+            default: defaults.decimals,
           },
           {
             type: "input",
             name: "erc20premint",
             message: "Premint",
-            default: "0",
+            default: defaults.premint,
           },
           {
             type: "confirm",
             name: "erc20mintable",
             message: "Mintable?",
-            default: false,
+            default: defaults.mintable,
           },
           {
             type: "confirm",
             name: "erc20burnable",
             message: "Burnable?",
-            default: false,
+            default: defaults.burnable,
           },
           {
             type: "confirm",
             name: "erc20pausable",
             message: "Pausable?",
-            default: false,
+            default: defaults.pausable,
           },
           {
             type: "confirm",
             name: "erc20upgradeable",
             message: "Upgradeable?",
-            default: false,
+            default: defaults.upgradeable,
           },
           {
             type: "input",
             name: "erc20license",
             message: "License",
-            default: "MIT",
+            default: defaults.info.license,
           },
         ];
         props = { ...props, ...(await this.prompt(erc20prompts)) };
@@ -238,14 +239,16 @@ module.exports = class extends Generator {
   _copyERC20() {
     const erc20 = printERC20({
       name: this.props.erc20name,
-      symbol: this.props.erc20name,
+      symbol: this.props.erc20symbol,
       decimals: this.props.erc20decimals,
       premint: this.props.erc20premint,
       mintable: this.props.erc20mintable,
       burnable: this.props.erc20burnable,
       pausable: this.props.erc20pausable,
       upgradeable: this.props.erc20upgradeable,
-      license: this.props.erc20license,
+      info: {
+        license: this.props.erc20license,
+      },
     });
     this.fs.write(
       this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
