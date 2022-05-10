@@ -242,7 +242,7 @@ module.exports = class extends Generator {
   }
 
   _copyERC20() {
-    if (this.props.useWizardERC20) {
+    if (this.props.customizeERC20) {
       const erc20 = printERC20({
         name: this.props.erc20name,
         symbol: this.props.erc20symbol,
