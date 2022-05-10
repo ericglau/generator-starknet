@@ -76,7 +76,7 @@ module.exports = class extends Generator {
         ...(await this.prompt({
           type: "confirm",
           name: "useWizardERC20",
-          message: "Use OpenZeppelin Contracts Wizard to build ERC20?",
+          message: "Customize ERC20?",
           default: true,
         })),
       };
@@ -237,29 +237,31 @@ module.exports = class extends Generator {
   }
 
   _copyERC20() {
-    const erc20 = printERC20({
-      name: this.props.erc20name,
-      symbol: this.props.erc20symbol,
-      decimals: this.props.erc20decimals,
-      premint: this.props.erc20premint,
-      mintable: this.props.erc20mintable,
-      burnable: this.props.erc20burnable,
-      pausable: this.props.erc20pausable,
-      upgradeable: this.props.erc20upgradeable,
-      info: {
-        license: this.props.erc20license,
-      },
-    });
-    this.fs.write(
-      this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
-      erc20
-    );
-
-    // This.fs.copyTpl(
-    //   this.templatePath("contracts/ERC20.cairo"),
-    //   this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
-    //   this.props
-    // );
+    if (this.props.useWizardERC20) {
+      const erc20 = printERC20({
+        name: this.props.erc20name,
+        symbol: this.props.erc20symbol,
+        decimals: this.props.erc20decimals,
+        premint: this.props.erc20premint,
+        mintable: this.props.erc20mintable,
+        burnable: this.props.erc20burnable,
+        pausable: this.props.erc20pausable,
+        upgradeable: this.props.erc20upgradeable,
+        info: {
+          license: this.props.erc20license,
+        },
+      });
+      this.fs.write(
+        this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
+        erc20
+      );
+    } else {
+      this.fs.copyTpl(
+        this.templatePath("contracts/ERC20.cairo"),
+        this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
+        this.props
+      );
+    }
   }
 
   _copyERC721() {
