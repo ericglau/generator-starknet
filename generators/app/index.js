@@ -67,21 +67,17 @@ module.exports = class extends Generator {
         store: true,
       },
     ];
+    await this.promptAndSave(prompts);
 
-    let props = await this.prompt(prompts);
+    if (this.props.wantERC20) {
+      await this.promptAndSave({
+        type: "confirm",
+        name: "customizeERC20",
+        message: "Customize ERC20?",
+        default: true,
+      });
 
-    if (props.wantERC20) {
-      props = {
-        ...props,
-        ...(await this.prompt({
-          type: "confirm",
-          name: "useWizardERC20",
-          message: "Customize ERC20?",
-          default: true,
-        })),
-      };
-
-      if (props.useWizardERC20) {
+      if (this.props.customizeERC20) {
         const defaults = erc20defaults;
         const erc20prompts = [
           {
@@ -139,7 +135,7 @@ module.exports = class extends Generator {
             default: defaults.info.license,
           },
         ];
-        props = { ...props, ...(await this.prompt(erc20prompts)) };
+        await this.promptAndSave(erc20prompts);
       }
     }
 
@@ -155,9 +151,18 @@ module.exports = class extends Generator {
       remainingPrompts.push(autoInstallPrompt);
     }
 
-    props = { ...props, ...(await this.prompt(remainingPrompts)) };
+    await this.promptAndSave(remainingPrompts);
 
-    this.props = props;
+    console.log(JSON.stringify(this.props));
+
+    //    This.props = props;
+  }
+
+  async promptAndSave(questions) {
+    this.props = {
+      ...this.props,
+      ...(await this.prompt(questions)),
+    };
   }
 
   // Write the generated files
