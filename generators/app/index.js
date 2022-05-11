@@ -13,7 +13,7 @@ const Generator = require("yeoman-generator");
 const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
-const { erc20prompts, _erc20print } = require("./erc20");
+const { erc20prompts, erc20print } = require("./erc20");
 
 module.exports = class extends Generator {
   async initializing() {
@@ -63,37 +63,45 @@ module.exports = class extends Generator {
         store: true,
       },
     ];
-    await this._promptMore(prompts);
+    await this._processPrompts(prompts);
 
     if (this.props.wantERC20) {
-      await this._promptMore({
+      await this._processPrompts({
         type: "confirm",
         name: "customizeERC20",
         message: "Customize ERC20?",
         default: true,
       });
-
       if (this.props.customizeERC20) {
-        await this._promptMore(erc20prompts);
+        await this._processPrompts(erc20prompts);
       }
     }
 
-    const remainingPrompts = [
-      {
+    await this._processPrompts({
+      type: "confirm",
+      name: "wantERC721",
+      message: "Do you want to add an ERC721 NFT contract?",
+      store: true,
+    });
+
+    if (this.props.wantERC721) {
+      await this._processPrompts({
         type: "confirm",
-        name: "wantERC721",
-        message: "Do you want to add an ERC721 NFT contract?",
+        name: "customizeERC721",
+        message: "Customize ERC721?",
         store: true,
-      },
-    ];
-    if (includeAutoInstallPrompt) {
-      remainingPrompts.push(autoInstallPrompt);
+      });
+      if (this.props.customizeERC721) {
+        // TODO await this._processPrompts(erc721prompts);
+      }
     }
 
-    await this._promptMore(remainingPrompts);
+    if (includeAutoInstallPrompt) {
+      await this._processPrompts(autoInstallPrompt);
+    }
   }
 
-  async _promptMore(questions) {
+  async _processPrompts(questions) {
     this.props = {
       ...this.props,
       ...(await this.prompt(questions)),
@@ -180,7 +188,7 @@ module.exports = class extends Generator {
     if (this.props.customizeERC20) {
       this.fs.write(
         this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
-        _erc20print(this.props)
+        erc20print(this.props)
       );
     } else {
       this.fs.copyTpl(
@@ -199,7 +207,7 @@ module.exports = class extends Generator {
     );
   }
 
-  install() { }
+  install() {}
 
   end() {
     this._goodbye();

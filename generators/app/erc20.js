@@ -57,7 +57,7 @@ const erc20prompts = [
   },
 ];
 
-function _erc20print(props) {
+function erc20print(props) {
   return printERC20({
     name: props.erc20name,
     symbol: props.erc20symbol,
@@ -73,4 +73,4 @@ function _erc20print(props) {
   });
 }
 
-module.exports = { erc20prompts, _erc20print };
+module.exports = { erc20prompts, erc20print };
