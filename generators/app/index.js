@@ -13,6 +13,8 @@ const Generator = require("yeoman-generator");
 const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
+const { erc20prompts, erc20print } = require("./erc20");
+const { erc721prompts, erc721print } = require("./erc721");
 
 const NILE = "Nile";
 const HARDHAT = "Hardhat";
@@ -27,7 +29,7 @@ module.exports = class extends Generator {
   }
 
   // Prompt user for configuration choices
-  prompting() {
+  async prompting() {
     const autoInstallPrompt = {
       type: "confirm",
       name: "wantInstall",
@@ -65,21 +67,50 @@ module.exports = class extends Generator {
         message: "Do you want to add an ERC20 token contract?",
         store: true,
       },
-      {
-        type: "confirm",
-        name: "wantERC721",
-        message: "Do you want to add an ERC721 NFT contract?",
-        store: true,
-      },
     ];
+    await this._processPrompts(prompts);
 
-    if (includeAutoInstallPrompt) {
-      prompts.push(autoInstallPrompt);
+    if (this.props.wantERC20) {
+      await this._processPrompts({
+        type: "confirm",
+        name: "customizeERC20",
+        message: "Customize ERC20?",
+        default: true,
+      });
+      if (this.props.customizeERC20) {
+        await this._processPrompts(erc20prompts);
+      }
     }
 
-    return this.prompt(prompts).then((props) => {
-      this.props = props;
+    await this._processPrompts({
+      type: "confirm",
+      name: "wantERC721",
+      message: "Do you want to add an ERC721 NFT contract?",
+      store: true,
     });
+
+    if (this.props.wantERC721) {
+      await this._processPrompts({
+        type: "confirm",
+        name: "customizeERC721",
+        message: "Customize ERC721?",
+        store: true,
+      });
+      if (this.props.customizeERC721) {
+        await this._processPrompts(erc721prompts);
+      }
+    }
+
+    if (includeAutoInstallPrompt) {
+      await this._processPrompts(autoInstallPrompt);
+    }
+  }
+
+  async _processPrompts(questions) {
+    this.props = {
+      ...this.props,
+      ...(await this.prompt(questions)),
+    };
   }
 
   // Write the generated files
@@ -136,6 +167,7 @@ module.exports = class extends Generator {
         this.props
       );
     }
+
     if (this.props.wantERC721) {
       this.fs.copyTpl(
         this.templatePath(`${NILE}/tests/test_ERC721.py`),
@@ -143,10 +175,13 @@ module.exports = class extends Generator {
         this.props
       );
     }
+
     if (this.props.wantERC20 || this.props.wantERC721) {
       this.fs.copyTpl(
         this.templatePath(`${NILE}/.github/workflows/python-app.yml`),
-        this.destinationPath(`${this.props.outputDir}/.github/workflows/python-app.yml`),
+        this.destinationPath(
+          `${this.props.outputDir}/.github/workflows/python-app.yml`
+        ),
         this.props
       );
     }
@@ -199,22 +234,36 @@ module.exports = class extends Generator {
   }
 
   _copyERC20() {
-    this.fs.copyTpl(
-      this.templatePath("contracts/ERC20.cairo"),
-      this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
-      this.props
-    );
+    if (this.props.customizeERC20) {
+      this.fs.write(
+        this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
+        erc20print(this.props)
+      );
+    } else {
+      this.fs.copyTpl(
+        this.templatePath("contracts/ERC20.cairo"),
+        this.destinationPath(`${this.props.srcDir}/ERC20.cairo`),
+        this.props
+      );
+    }
   }
 
   _copyERC721() {
-    this.fs.copyTpl(
-      this.templatePath("contracts/ERC721.cairo"),
-      this.destinationPath(`${this.props.srcDir}/ERC721.cairo`),
-      this.props
-    );
+    if (this.props.customizeERC721) {
+      this.fs.write(
+        this.destinationPath(`${this.props.srcDir}/ERC721.cairo`),
+        erc721print(this.props)
+      );
+    } else {
+      this.fs.copyTpl(
+        this.templatePath("contracts/ERC721.cairo"),
+        this.destinationPath(`${this.props.srcDir}/ERC721.cairo`),
+        this.props
+      );
+    }
   }
 
-  install() { }
+  install() {}
 
   end() {
     this._goodbye();
