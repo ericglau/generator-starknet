@@ -14,6 +14,7 @@ const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
 const { erc20prompts, erc20print } = require("./erc20");
+const { erc721prompts, erc721print } = require("./erc721");
 
 module.exports = class extends Generator {
   async initializing() {
@@ -92,7 +93,7 @@ module.exports = class extends Generator {
         store: true,
       });
       if (this.props.customizeERC721) {
-        // TODO await this._processPrompts(erc721prompts);
+        await this._processPrompts(erc721prompts);
       }
     }
 
@@ -200,11 +201,18 @@ module.exports = class extends Generator {
   }
 
   _copyERC721() {
-    this.fs.copyTpl(
-      this.templatePath("contracts/ERC721.cairo"),
-      this.destinationPath(`${this.props.srcDir}/ERC721.cairo`),
-      this.props
-    );
+    if (this.props.customizeERC721) {
+      this.fs.write(
+        this.destinationPath(`${this.props.srcDir}/ERC721.cairo`),
+        erc721print(this.props)
+      );
+    } else {
+      this.fs.copyTpl(
+        this.templatePath("contracts/ERC721.cairo"),
+        this.destinationPath(`${this.props.srcDir}/ERC721.cairo`),
+        this.props
+      );
+    }
   }
 
   install() {}
