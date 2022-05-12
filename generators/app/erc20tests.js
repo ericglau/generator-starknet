@@ -18,7 +18,7 @@ function getConstructorProps(props) {
 
     const calldata = [];
 
-    if (props.erc20premint) {
+    if (props.erc20premint && props.erc20premint !== "0") {
       calldata.push(
         props.erc20upgradeable ? "admin.contract_address" : "OWNER"
       ); // Recipient
@@ -67,7 +67,7 @@ function getConstructorProps(props) {
 
     const calldata = [];
 
-    if (props.erc20premint) {
+    if (props.erc20premint && props.erc20premint !== "0") {
       calldata.push("recipient: OWNER");
     }
 
