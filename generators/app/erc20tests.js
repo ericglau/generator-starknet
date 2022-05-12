@@ -13,6 +13,7 @@ function getConstructorProps(props) {
     if (!props.customizeERC20) {
       return {
         testingVars: formatLines([
+          "OWNER = 42",
           'NAME = str_to_felt("Starknet")',
           'SYMBOL = str_to_felt("STARK")',
           "INIT_SUPPLY = to_uint(1000)",
@@ -33,7 +34,10 @@ function getConstructorProps(props) {
     }
 
     return {
-      testingVars: `NAME = str_to_felt("${props.erc20name}")`,
+      testingVars: formatLines([
+        "OWNER = 42",
+        `NAME = str_to_felt("${props.erc20name}")`,
+      ]),
       constructorCalldata: formatArgs(calldata),
     };
   }
@@ -42,6 +46,7 @@ function getConstructorProps(props) {
     if (!props.customizeERC20) {
       return {
         testingVars: formatLines([
+          "const OWNER = 42",
           'const NAME = starknet.shortStringToBigInt("Starknet")',
           'const SYMBOL = starknet.shortStringToBigInt("STARK")',
           "const INIT_SUPPLY = { low: 1000, high: 0 }",
@@ -68,7 +73,10 @@ function getConstructorProps(props) {
     }
 
     return {
-      testingVars: `const NAME = starknet.shortStringToBigInt("${props.erc20name}")`,
+      testingVars: formatLines([
+        "const OWNER = 42",
+        `const NAME = starknet.shortStringToBigInt("${props.erc20name}")`,
+      ]),
       constructorCalldata: formatArgs(calldata),
     };
   }

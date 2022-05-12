@@ -6,9 +6,7 @@ from utils import (
     to_uint, assert_event_emitted, str_to_felt, Signer
 )
 
-
 # testing vars
-OWNER=42
 <%= testingVars %>
 
 @pytest.fixture

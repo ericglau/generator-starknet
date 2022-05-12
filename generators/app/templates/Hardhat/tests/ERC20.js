@@ -1,8 +1,7 @@
 const { expect } = require("chai");
 const { starknet } = require("hardhat");
 
-const OWNER = 42
-<%= constructorVars %>
+<%= testingVars %>
 
 describe("Test contract : ERC20", function () {
 
