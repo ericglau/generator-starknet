@@ -3,76 +3,62 @@ const { formatArgs, formatLines } = require("./utils");
 
 function getConstructorProps(props) {
   if (props.framework === NILE) {
-    if (!props.customizeERC20) {
+    if (!props.customizeERC721) {
       return {
         testingVars: formatLines([
           "OWNER = 42",
-          'NAME = str_to_felt("Starknet")',
+          'NAME = str_to_felt("Starknet NFT")',
           'SYMBOL = str_to_felt("STARK")',
-          "INIT_SUPPLY = to_uint(1000)",
-          "DECIMALS = 18",
         ]),
-        constructorCalldata: "NAME, SYMBOL, DECIMALS, *INIT_SUPPLY, OWNER",
+        constructorCalldata: "NAME, SYMBOL, OWNER",
       };
     }
 
     const calldata = [];
 
-    if (props.erc20premint) {
-      calldata.push("OWNER"); // Recipient
-    }
-
-    if (props.erc20mintable || props.erc20pausable) {
+    if (props.erc721mintable || props.erc721pausable) {
       calldata.push("OWNER"); // Owner
     }
 
     return {
       testingVars: formatLines([
         "OWNER = 42",
-        `NAME = str_to_felt("${props.erc20name}")`,
+        `NAME = str_to_felt("${props.erc721name}")`,
       ]),
       constructorCalldata: formatArgs(calldata),
     };
   }
 
   if (props.framework === HARDHAT) {
-    if (!props.customizeERC20) {
+    if (!props.customizeERC721) {
       return {
         testingVars: formatLines([
           "const OWNER = 42",
-          'const NAME = starknet.shortStringToBigInt("Starknet")',
+          'const NAME = starknet.shortStringToBigInt("Starknet NFT")',
           'const SYMBOL = starknet.shortStringToBigInt("STARK")',
-          "const INIT_SUPPLY = { low: 1000, high: 0 }",
-          "const DECIMALS = 18",
         ]),
         constructorCalldata: formatArgs([
           "name: NAME",
           "symbol: SYMBOL",
-          "decimals: DECIMALS",
-          "initial_supply: INIT_SUPPLY",
-          "recipient: OWNER",
+          "owner: OWNER",
         ]),
       };
     }
 
     const calldata = [];
 
-    if (props.erc20premint) {
-      calldata.push("recipient: OWNER");
-    }
-
-    if (props.erc20mintable || props.erc20pausable) {
+    if (props.erc721mintable || props.erc721pausable) {
       calldata.push("owner: OWNER");
     }
 
     return {
       testingVars: formatLines([
         "const OWNER = 42",
-        `const NAME = starknet.shortStringToBigInt("${props.erc20name}")`,
+        `const NAME = starknet.shortStringToBigInt("${props.erc721name}")`,
       ]),
       constructorCalldata: formatArgs(calldata),
     };
   }
 }
 
-module.exports = { getERC20ConstructorProps: getConstructorProps };
+module.exports = { getERC721ConstructorProps: getConstructorProps };

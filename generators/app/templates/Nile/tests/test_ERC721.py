@@ -8,9 +8,7 @@ from utils import (
 
 
 # testing vars
-OWNER=42
-NAME = str_to_felt("Starknet NFT")
-SYMBOL = str_to_felt("STARK")
+<%= testingVars %>
 
 @pytest.fixture
 def contract_defs():
@@ -23,7 +21,7 @@ async def erc721_init(contract_defs):
     starknet = await Starknet.empty()
     erc721 = await starknet.deploy(
         contract_def=erc721_def,
-        constructor_calldata=[NAME, SYMBOL, OWNER]
+        constructor_calldata=[<%= constructorCalldata %>]
     )
     return (
         starknet.state,
