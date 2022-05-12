@@ -185,13 +185,19 @@ module.exports = class extends Generator {
       );
     }
 
-    if (this.props.wantERC721 && !this.props.erc721upgradeable) {
+    if (this.props.wantERC721) {
       this.props = {
         ...this.props,
         ...getERC721ConstructorProps(this.props),
       };
       this.fs.copyTpl(
-        this.templatePath(`${NILE}/tests/test_ERC721.py`),
+        this.templatePath(
+          `${NILE}/tests/${
+            this.props.erc721upgradeable
+              ? "test_ERC721_Upgradeable"
+              : "test_ERC721"
+          }.py`
+        ),
         this.destinationPath(`${this.props.outputDir}/tests/test_ERC721.py`),
         this.props,
         noMarkup

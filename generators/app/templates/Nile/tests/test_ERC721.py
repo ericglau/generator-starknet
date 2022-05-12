@@ -5,7 +5,6 @@ from utils import (
     cached_contract, get_contract_def, str_to_felt
 )
 
-
 # testing vars
 <%= testingVars %>
 
