@@ -9,7 +9,7 @@ from utils import (
 
 # testing vars
 OWNER=42
-<%= constructorVars %>
+<%= testingVars %>
 
 @pytest.fixture
 def contract_defs():
