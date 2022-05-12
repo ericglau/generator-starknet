@@ -13,12 +13,17 @@ const Generator = require("yeoman-generator");
 const chalk = require("chalk");
 const yosay = require("yosay");
 const { cwd } = require("process");
+
+const { NILE, HARDHAT, PROTOSTAR } = require("./constants");
 const { erc20prompts, erc20print } = require("./erc20");
 const { erc721prompts, erc721print } = require("./erc721");
+const { getConstructorProps } = require("./erc20tests");
 
-const NILE = "Nile";
-const HARDHAT = "Hardhat";
-const PROTOSTAR = "Protostar";
+const noMarkup = {
+  escape: (markup) => {
+    return markup;
+  },
+};
 
 module.exports = class extends Generator {
   async initializing() {
@@ -161,10 +166,15 @@ module.exports = class extends Generator {
       this.props
     );
     if (this.props.wantERC20) {
+      this.props = {
+        ...this.props,
+        ...getConstructorProps(this.props),
+      };
       this.fs.copyTpl(
         this.templatePath(`${NILE}/tests/test_ERC20.py`),
         this.destinationPath(`${this.props.outputDir}/tests/test_ERC20.py`),
-        this.props
+        this.props,
+        noMarkup
       );
     }
 
@@ -201,10 +211,15 @@ module.exports = class extends Generator {
     );
 
     if (this.props.wantERC20) {
+      this.props = {
+        ...this.props,
+        ...getConstructorProps(this.props),
+      };
       this.fs.copyTpl(
         this.templatePath(`${HARDHAT}/tests/ERC20.js`),
         this.destinationPath(`${this.props.outputDir}/tests/ERC20.js`),
-        this.props
+        this.props,
+        noMarkup
       );
     }
 
