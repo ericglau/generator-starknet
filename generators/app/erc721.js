@@ -1,4 +1,7 @@
-const { printERC721, erc721defaults: defaults } = require("core-cairo");
+const {
+  printERC721,
+  erc721defaults: defaults,
+} = require("@openzeppelin/wizard-cairo");
 
 const erc721prompts = [
   {

@@ -19,18 +19,28 @@ function getConstructorProps(props) {
     const calldata = [];
 
     if (props.erc20premint) {
-      calldata.push("OWNER"); // Recipient
+      calldata.push(
+        props.erc20upgradeable ? "admin.contract_address" : "OWNER"
+      ); // Recipient
     }
 
     if (props.erc20mintable || props.erc20pausable) {
-      calldata.push("OWNER"); // Owner
+      calldata.push(
+        props.erc20upgradeable ? "admin.contract_address" : "OWNER"
+      ); // Owner
+    }
+
+    if (props.erc20upgradeable) {
+      calldata.push("admin.contract_address"); // Proxy admin
     }
 
     return {
-      testingVars: formatLines([
-        "OWNER = 42",
-        `NAME = str_to_felt("${props.erc20name}")`,
-      ]),
+      testingVars: props.erc20upgradeable
+        ? `NAME = str_to_felt("${props.erc20name}")`
+        : formatLines([
+            "OWNER = 42",
+            `NAME = str_to_felt("${props.erc20name}")`,
+          ]),
       constructorCalldata: formatArgs(calldata),
     };
   }
